@@ -343,8 +343,8 @@ function inflateBlock2stg(f, blockOffset, cbfn) {
 
 // Mid level function that given a BGZF file F, a region defined by
 // offsets BEGOFFSET and ENDOFFSET, fetches, inflates and appends all
-// the _gzip_ blocks in the region into a single array buffer and
-// passes to CBFN.
+// (_inclusively_) the _gzip_ blocks in the region into a single array
+// buffer and passes to CBFN.
 function inflateRegion (f, begOffset, endOffset, cbfn) {
     var blockOffset = begOffset;
     var res = [];
@@ -354,7 +354,7 @@ function inflateRegion (f, begOffset, endOffset, cbfn) {
             f, blockOffset,
             function(x){
                 blockOffset = x;
-                if (blockOffset < endOffset) {
+                if (blockOffset <= endOffset) {
                     return inflateBlock(f, blockOffset, cb);
                 } else {
                     var resBuf = appendBuffers(res);
@@ -371,7 +371,7 @@ function inflateRegion (f, begOffset, endOffset, cbfn) {
 // BGZF _data_ file (bai should be fine) will likely blow up with
 // memory exceeded.
 function inflateAllBlocks(f, cbfn) {
-    return inflateRegion(f, 0, f.size, cbfn);
+    return inflateRegion(f, 0, f.size-1, cbfn);
 }
 
 
